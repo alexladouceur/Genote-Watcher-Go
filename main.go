@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http/cookiejar"
+	"time"
 
 	"genote-watcher/scrapers"
 	"genote-watcher/utils"
@@ -73,8 +74,10 @@ func main() {
 		}
 	}
 
-	for _, courseName := range diffRows {
-		fmt.Println(courseName)
+	now := time.Now()
+	for _, courseCode := range diffRows {
+		fmt.Printf("%s Nouvelle note en %s est disponible sur Genote!\n", now.Format("2006/01/02 15:04:05"), courseCode)
+		utils.NotifyUser(utils.GetEnvVariable("DISCORD_WEBHOOK"), courseCode)
 	}
 
 	utils.WriteResultFile(rows)
