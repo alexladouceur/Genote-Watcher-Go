@@ -1,15 +1,17 @@
-package parsers
+package scrapers
 
 import (
+	"cmp"
 	"genote-watcher/model"
 	"log"
+	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
 )
 
-func ParseClasses(c *colly.Collector) []model.CourseRow {
+func ScrapeCourseRows(c *colly.Collector) []model.CourseRow {
 	rows := []model.CourseRow{}
 	c.OnHTML("table:nth-child(4) tbody", func(e *colly.HTMLElement) {
 		cr := model.CourseRow{}
@@ -30,7 +32,13 @@ func ParseClasses(c *colly.Collector) []model.CourseRow {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	c.Wait()
+
+	// Sort rows by course code
+	slices.SortFunc(rows, func(i, j model.CourseRow) int {
+		return cmp.Compare(i.CourseName, j.CourseName)
+	})
 
 	return rows
 }

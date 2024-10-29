@@ -5,11 +5,10 @@ import (
 	"log"
 	"net/http/cookiejar"
 
-	"genote-watcher/parsers"
+	"genote-watcher/scrapers"
 	"genote-watcher/utils"
 
 	"github.com/gocolly/colly/v2"
-	"github.com/gocolly/colly/v2/debug"
 )
 
 const (
@@ -18,7 +17,7 @@ const (
 
 func createCollector() *colly.Collector {
 	c := colly.NewCollector(
-		colly.Debugger(&debug.LogDebugger{}),
+		//colly.Debugger(&debug.LogDebugger{}),
 		colly.UserAgent(utils.GetRandomUserAgent()),
 	)
 
@@ -58,7 +57,25 @@ func main() {
 	c := createCollector()
 	login(c)
 
-	rows := parsers.ParseClasses(c.Clone())
+	rows := scrapers.ScrapeCourseRows(c.Clone())
 
-	fmt.Println(rows)
+	oldRows := utils.ReadResultFile()
+	if oldRows == nil {
+		utils.WriteResultFile(rows)
+		return
+	}
+
+	diffRows := []string{}
+
+	for index := range rows {
+		if !rows[index].Equal(&oldRows[index]) {
+			diffRows = append(diffRows, rows[index].CourseCode)
+		}
+	}
+
+	for _, courseName := range diffRows {
+		fmt.Println(courseName)
+	}
+
+	utils.WriteResultFile(rows)
 }
