@@ -5,38 +5,18 @@ import (
 	"log"
 	"net/http/cookiejar"
 
+	"genote-watcher/parsers"
 	"genote-watcher/utils"
 
 	"github.com/gocolly/colly/v2"
 	"github.com/gocolly/colly/v2/debug"
 )
 
-func login(c *colly.Collector, fieldsData map[string]string) {
-	loginUrl := "https://cas.usherbrooke.ca/login?service=https://www.usherbrooke.ca/genote/public/index.php"
+const (
+	LOGIN_URL = "https://cas.usherbrooke.ca/login?service=https://www.usherbrooke.ca/genote/public/index.php"
+)
 
-	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("Error:", err)
-		fmt.Println(r.Request.Headers)
-	})
-
-	c.OnResponse(func(r *colly.Response) {
-		fmt.Println(string(r.Body))
-
-		err := c.Visit("https://www.usherbrooke.ca/genote/public/index.php")
-		if err != nil {
-			log.Fatal(err)
-		}
-	})
-
-	err := c.Post(loginUrl, fieldsData)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-}
-
-func main() {
-
+func createCollector() *colly.Collector {
 	c := colly.NewCollector(
 		colly.Debugger(&debug.LogDebugger{}),
 		colly.UserAgent(utils.GetRandomUserAgent()),
@@ -45,7 +25,12 @@ func main() {
 	jar, _ := cookiejar.New(nil)
 	c.SetCookieJar(jar)
 
-	loginPageURL := "https://cas.usherbrooke.ca/login?service=https%3A%2F%2Fwww.usherbrooke.ca%2Fgenote%2Fpublic%2Findex.php"
+	return c
+}
+
+func getLoginFields(c *colly.Collector) map[string]string {
+
+	defer c.Visit(LOGIN_URL)
 
 	fieldsData := map[string]string{
 		"username": utils.GetEnvVariable("GENOTE_USER"),
@@ -57,9 +42,23 @@ func main() {
 		fieldsData[e.Attr("name")] = e.Attr("value")
 	})
 
-	c.OnScraped(func(r *colly.Response) {
-		login(c, fieldsData)
-	})
+	return fieldsData
+}
 
-	c.Visit(loginPageURL)
+func login(c *colly.Collector) {
+	fieldsData := getLoginFields(c)
+
+	err := c.Post(LOGIN_URL, fieldsData)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func main() {
+	c := createCollector()
+	login(c)
+
+	rows := parsers.ParseClasses(c.Clone())
+
+	fmt.Println(rows)
 }

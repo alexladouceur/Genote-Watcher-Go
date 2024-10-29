@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"encoding/json"
+	"genote-watcher/model"
 	"log"
 	"math/rand"
 	"os"
@@ -30,4 +32,28 @@ func GetEnvVariable(key string) string {
 	}
 
 	return os.Getenv(key)
+}
+
+func CreateResultFile(data []model.CourseRow) {
+	r, _ := json.Marshal(data)
+
+	err := os.WriteFile("result.json", r, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func ReadResultFile() []model.CourseRow {
+	file, err := os.ReadFile("result.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var data []model.CourseRow
+	err = json.Unmarshal(file, &data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return data
 }
