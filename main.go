@@ -18,7 +18,6 @@ const (
 
 func createCollector() *colly.Collector {
 	c := colly.NewCollector(
-		//colly.Debugger(&debug.LogDebugger{}),
 		colly.UserAgent(utils.GetRandomUserAgent()),
 	)
 
