@@ -17,6 +17,15 @@ to make things faster and easier to share.
 
 - Run the executable !
 
+## Run with Docker
+
+- Get the Image
+- Run the container and make sure that the 3 env variables are set by either:
+  - Running `docker run --env-file <env_file_name> <imageName>`
+  - Running
+    `docker run -e <env_name1>=<env_value1> <env_nameX>=<env_valueX> <imageName>`
+  - Adding the environment variables to a docker-compose
+
 ## Build the app from scratch
 
 - You will need to have go installed

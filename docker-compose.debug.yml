@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  genotewatcher:
+    image: genotewatcher
+    build:
+      context: .
+      dockerfile: ./Dockerfile

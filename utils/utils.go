@@ -7,8 +7,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 func GetUserAgents() []string {
@@ -23,16 +21,6 @@ func GetUserAgents() []string {
 func GetRandomUserAgent() string {
 	userAgents := GetUserAgents()
 	return userAgents[rand.Intn(len(userAgents))]
-}
-
-func GetEnvVariable(key string) string {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	return os.Getenv(key)
 }
 
 func WriteResultFile(data []model.CourseRow) {
@@ -61,6 +49,10 @@ func ReadResultFile() []model.CourseRow {
 	err = json.Unmarshal(file, &data)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if len(data) == 0 {
+		return nil
 	}
 
 	return data

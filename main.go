@@ -16,6 +16,8 @@ const (
 	LOGIN_URL = "https://cas.usherbrooke.ca/login?service=https://www.usherbrooke.ca/genote/public/index.php"
 )
 
+var config *utils.Config
+
 func createCollector() *colly.Collector {
 	c := colly.NewCollector(
 		colly.UserAgent(utils.GetRandomUserAgent()),
@@ -32,8 +34,8 @@ func getLoginFields(c *colly.Collector) map[string]string {
 	defer c.Visit(LOGIN_URL)
 
 	fieldsData := map[string]string{
-		"username": utils.GetEnvVariable("GENOTE_USER"),
-		"password": utils.GetEnvVariable("GENOTE_PASSWORD"),
+		"username": config.Username,
+		"password": config.Password,
 		"submit":   "",
 	}
 
@@ -54,6 +56,8 @@ func login(c *colly.Collector) {
 }
 
 func main() {
+	config = utils.MustGetConfig()
+
 	c := createCollector()
 	login(c)
 
@@ -76,7 +80,7 @@ func main() {
 	now := time.Now()
 	for _, courseCode := range diffRows {
 		fmt.Printf("%s Nouvelle note en %s est disponible sur Genote!\n", now.Format("2006/01/02 15:04:05"), courseCode)
-		utils.NotifyUser(utils.GetEnvVariable("DISCORD_WEBHOOK"), courseCode)
+		utils.NotifyUser(config.DiscordWebhook, courseCode)
 	}
 
 	utils.WriteResultFile(rows)
