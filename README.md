@@ -19,12 +19,16 @@ to make things faster and easier to share.
 
 ## Run with Docker
 
-- Get the Image
+- Get the Image from `docker pull enox/genote-watcher`
 - Run the container and make sure that the 3 env variables are set by either:
-  - Running `docker run --env-file <env_file_name> <imageName>`
+  - Running `docker run --env-file <env_file_name> enox/genote-watcher:latest`
   - Running
-    `docker run -e <env_name1>=<env_value1> <env_nameX>=<env_valueX> <imageName>`
+    `docker run -e <env_name1>=<env_value1> <env_nameX>=<env_valueX> enox/genote-watcher:latest`
   - Adding the environment variables to a docker-compose
+  - If you need to restart the container you can run
+    `docker start <name_of_container>`. It is important to start an already
+    started container so it can track changes over time. If a new container is
+    created, it will not work
 
 ## Build the app from scratch
 
