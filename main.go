@@ -78,9 +78,16 @@ func main() {
 	}
 
 	now := time.Now()
+	formattedDate := now.Format("2006/01/02 15:04:05")
+	var changesDetected bool
 	for _, courseCode := range diffRows {
-		fmt.Printf("%s Nouvelle note en %s est disponible sur Genote!\n", now.Format("2006/01/02 15:04:05"), courseCode)
+		fmt.Printf("[%s] Nouvelle note en %s est disponible sur Genote!\n", formattedDate, courseCode)
 		utils.NotifyUser(config.DiscordWebhook, courseCode)
+		changesDetected = true
+	}
+
+	if !changesDetected {
+		fmt.Printf("[%s] Aucun changement détecté\n", formattedDate)
 	}
 
 	utils.WriteResultFile(rows)

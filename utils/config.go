@@ -39,11 +39,7 @@ func MustGetConfig() *Config {
 func loadEnvVariables() (*Config, error) {
 	config := &Config{}
 
-	env_err := godotenv.Load()
-
-	if env_err != nil {
-		fmt.Printf("Missing .env file. Make sure to create one or set the environment variables manually.\n")
-	}
+	godotenv.Load()
 
 	t := reflect.TypeOf(config).Elem()
 	val := reflect.ValueOf(config).Elem()

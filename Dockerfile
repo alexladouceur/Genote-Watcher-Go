@@ -11,5 +11,6 @@ RUN go build -o /bin/genote-watcher -v
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /bin/genote-watcher /bin/genote-watcher/app
-ENTRYPOINT [ "tail", "-f", "/dev/null" ]
+ENTRYPOINT [ "/bin/genote-watcher/app" ]
+
 LABEL Name=genotewatcher
