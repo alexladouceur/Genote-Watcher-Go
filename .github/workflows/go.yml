@@ -1,5 +1,3 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 name: Release Go Application
 
 on:
@@ -23,22 +21,38 @@ jobs:
     - name: Install dependencies
       run: go mod download
         
-    - name: Build Linux binary
+    - name: Create .env template
       run: |
-        GOOS=linux GOARCH=amd64 go build -o build/genote-watcher-linux-amd64
-        chmod +x build/genote-watcher-linux-amd64
+        cat > .env.template << EOL
+        GENOTE_USER=
+        GENOTE_PASSWORD=
+        DISCORD_WEBHOOK=
+        EOL
+    - name: Build and package Linux binary
+      run: |
+        mkdir -p build/linux
+        GOOS=linux GOARCH=amd64 go build -o build/linux/genote-watcher
+        cp .env.template build/linux/.env
+        cd build/linux
+        zip ../genote-watcher-linux-amd64.zip genote-watcher .env
+        cd ../..
         
-    - name: Build Windows binary
+    - name: Build and package Windows binary
       run: |
-        GOOS=windows GOARCH=amd64 go build -o build/genote-watcher-windows-amd64.exe
+        mkdir -p build/windows
+        GOOS=windows GOARCH=amd64 go build -o build/windows/genote-watcher.exe
+        cp .env.template build/windows/.env
+        cd build/windows
+        zip ../genote-watcher-windows-amd64.zip genote-watcher.exe .env
+        cd ../..
         
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          build/genote-watcher-linux-amd64
-          build/genote-watcher-windows-amd64.exe
+          build/genote-watcher-linux-amd64.zip
+          build/genote-watcher-windows-amd64.zip
         draft: false
         prerelease: false
         generate_release_notes: true
