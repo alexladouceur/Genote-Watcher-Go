@@ -10,7 +10,7 @@ import (
 func NotifyUser(url, courseCode string) {
 	data := []byte(fmt.Sprintf(`
 	{
-    "content": "@everyone",
+    "content": "<@134425266083594241>",
     "embeds": [
       {
         "description": "Nouvelle note en %s est disponible sur Genote!",
